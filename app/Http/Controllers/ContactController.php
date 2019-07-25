@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Mockery\Exception;
-use Yajra\DataTables\DataTables;
-
 use App\Contact;
+use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
 
 class ContactController extends Controller
 {
@@ -24,7 +22,8 @@ class ContactController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -32,7 +31,7 @@ class ContactController extends Controller
         $input = $request->all();
         $input['photo'] = null;
 
-        if ($request->hasFile('photo')){
+        if ($request->hasFile('photo')) {
             $input['photo'] = '/upload/photo/'.str_slug($input['name'], '-').'.'.$request->photo->getClientOriginalExtension();
             $request->photo->move(public_path('/upload/photo/'), $input['photo']);
         }
@@ -41,14 +40,15 @@ class ContactController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Contact Created'
+            'message' => 'Contact Created',
         ]);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -59,20 +59,23 @@ class ContactController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
         $contact = Contact::findOrFail($id);
+
         return $contact;
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int                      $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -82,8 +85,8 @@ class ContactController extends Controller
 
         $input['photo'] = $contact->photo;
 
-        if ($request->hasFile('photo')){
-            if (!$contact->photo == NULL){
+        if ($request->hasFile('photo')) {
+            if (!$contact->photo == null) {
                 unlink(public_path($contact->photo));
             }
             $input['photo'] = '/upload/photo/'.str_slug($input['name'], '-').'.'.$request->photo->getClientOriginalExtension();
@@ -94,21 +97,22 @@ class ContactController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Contact Updated'
+            'message' => 'Contact Updated',
         ]);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
         $contact = Contact::findOrFail($id);
 
-        if (!$contact->photo == NULL){
+        if (!$contact->photo == null) {
             unlink(public_path($contact->photo));
         }
 
@@ -116,25 +120,26 @@ class ContactController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Contact Deleted'
+            'message' => 'Contact Deleted',
         ]);
     }
 
     public function apiContact()
     {
         $contact = Contact::all();
- 
+
         return Datatables::of($contact)
-            ->addColumn('show_photo', function($contact){
-                if ($contact->photo == NULL){
+            ->addColumn('show_photo', function ($contact) {
+                if ($contact->photo == null) {
                     return 'No Image';
                 }
-                return '<img class="rounded-square" width="50" height="50" src="'. url($contact->photo) .'" alt="">';
+
+                return '<img class="rounded-square" width="50" height="50" src="'.url($contact->photo).'" alt="">';
             })
-            ->addColumn('action', function($contact){
-                return '<a href="#" class="btn btn-info btn-xs"><i class="glyphicon glyphicon-eye-open"></i> Show</a> ' .
-                       '<a onclick="editForm('. $contact->id .')" class="btn btn-primary btn-xs"><i class="glyphicon glyphicon-edit"></i> Edit</a> ' .
-                       '<a onclick="deleteData('. $contact->id .')" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i> Delete</a>';
+            ->addColumn('action', function ($contact) {
+                return '<a href="#" class="btn btn-info btn-xs"><i class="glyphicon glyphicon-eye-open"></i> Show</a> '.
+                       '<a onclick="editForm('.$contact->id.')" class="btn btn-primary btn-xs"><i class="glyphicon glyphicon-edit"></i> Edit</a> '.
+                       '<a onclick="deleteData('.$contact->id.')" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i> Delete</a>';
             })
             ->rawColumns(['show_photo', 'action'])->make(true);
     }
